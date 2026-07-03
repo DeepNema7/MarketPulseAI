@@ -6,6 +6,7 @@ from app.schemas.company import CompanyResponse
 
 
 def get_stock_price(symbol: str) -> StockResponse:
+
     try:
         stock = yf.Ticker(symbol)
         info = stock.info
@@ -18,14 +19,18 @@ def get_stock_price(symbol: str) -> StockResponse:
             high=info.get("dayHigh", 0.0),
             low=info.get("dayLow", 0.0),
             volume=info.get("volume", 0),
-            currency=info.get("currency", "N/A"),
+            currency=info.get("currency", "N/A")
         )
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(
+            status_code=500,
+            detail=str(e)
+        )
 
 
 def get_company_info(symbol: str) -> CompanyResponse:
+
     try:
         stock = yf.Ticker(symbol)
         info = stock.info
@@ -38,8 +43,59 @@ def get_company_info(symbol: str) -> CompanyResponse:
             country=info.get("country", "N/A"),
             website=info.get("website", "N/A"),
             employees=info.get("fullTimeEmployees", 0),
-            business_summary=info.get("longBusinessSummary", "N/A")
+            business_summary=info.get(
+                "longBusinessSummary",
+                "N/A"
+            )
         )
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(
+            status_code=500,
+            detail=str(e)
+        )
+
+
+def get_stock_history(symbol: str):
+
+    try:
+        stock = yf.Ticker(symbol)
+
+        data = stock.history(period="30d")
+
+        if data.empty:
+            raise HTTPException(
+                status_code=404,
+                detail="Stock history not found"
+            )
+
+        history = []
+
+        for date, row in data.iterrows():
+
+            history.append(
+                {
+                    "date": str(date.date()),
+                    "open": row["Open"],
+                    "high": row["High"],
+                    "low": row["Low"],
+                    "close": row["Close"],
+                    "volume": row["Volume"]
+                }
+            )
+
+        return {
+            "symbol": symbol.upper(),
+            "history": history
+        }
+
+
+    except HTTPException:
+        raise
+
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=str(e)
+        )
