@@ -1,10 +1,12 @@
-# Virtual environments
+# virtual environments
 .venv/
 venv/
+backend/.venv/
+backend/venv/
 
-# Python cache
+# secrets
+.env
+
+# python cache
 __pycache__/
 *.pyc
-
-# Secrets
-.env
