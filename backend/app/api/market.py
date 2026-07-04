@@ -3,12 +3,17 @@ from fastapi import APIRouter
 from app.schemas.stock import StockResponse
 from app.schemas.company import CompanyResponse
 
+from app.services.market_service import get_crypto_price
+
+from app.services.market_service import get_market_summary
+
 from app.services.market_service import (
     get_stock_price,
     get_company_info,
-    get_stock_history
+    get_stock_history,
+    get_multiple_stocks
 )
-
+ 
 
 router = APIRouter()
 
@@ -45,3 +50,15 @@ def company(symbol: str):
 def stock_history(symbol: str):
 
     return get_stock_history(symbol)
+
+@router.get("/stocks")
+def multiple_stocks():
+    return get_multiple_stocks()
+
+@router.get("/crypto/{symbol}")
+def crypto(symbol: str):
+    return get_crypto_price(symbol)
+
+@router.get("/summary")
+def market_summary():
+    return get_market_summary()
