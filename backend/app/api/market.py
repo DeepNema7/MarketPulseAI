@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
+from app.security.auth_dependency import get_current_user 
+
 
 # Schemas
 from app.schemas.stock import StockResponse
@@ -44,7 +46,8 @@ router = APIRouter()
 )
 def stock(
     symbol: str,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
 ):
 
     data = get_stock_price(symbol)
@@ -60,7 +63,6 @@ def stock(
 
 
     return data 
-
 
 
 # -------------------------

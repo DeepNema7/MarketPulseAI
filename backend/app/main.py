@@ -4,6 +4,8 @@ from app.api.market import router as market_router
 
 from app.database.connection import engine, Base
 from app.models import market_model
+from app.models import user 
+from app.routers import auth
 
 
 # Create database tables automatically
@@ -16,7 +18,11 @@ app = FastAPI(
 )
 
 
-# Include API routes
+# Authentication routes
+app.include_router(auth.router)
+
+
+# Market routes
 app.include_router(
     market_router,
     prefix="/market",
@@ -26,7 +32,6 @@ app.include_router(
 
 @app.get("/")
 def home():
-
     return {
         "message": "Welcome to MarketPulseAI"
     } 
