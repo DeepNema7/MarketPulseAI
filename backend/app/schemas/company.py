@@ -1,12 +1,17 @@
 from pydantic import BaseModel
+from typing import Optional
 
 
 class CompanyResponse(BaseModel):
+
     symbol: str
-    company: str
-    sector: str
-    industry: str
-    country: str
-    website: str
-    employees: int
-    business_summary: str
+
+    name: Optional[str] = None
+
+    sector: Optional[str] = None
+
+    industry: Optional[str] = None
+
+    country: Optional[str] = None
+
+    website: Optional[str] = None 

@@ -1,12 +1,14 @@
 from jose import jwt, JWTError
 from datetime import datetime, timedelta
 
+from app.core.config import settings
 
-SECRET_KEY = "marketpulse_secret_key"
 
-ALGORITHM = "HS256"
+SECRET_KEY = settings.JWT_SECRET_KEY
+ALGORITHM = settings.JWT_ALGORITHM
+ACCESS_TOKEN_EXPIRE_MINUTES = settings.ACCESS_TOKEN_EXPIRE_MINUTES
 
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
 
 
 

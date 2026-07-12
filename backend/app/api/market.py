@@ -1,11 +1,16 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
 
-from app.security.auth_dependency import get_current_user 
+
+# Security
+from app.security.auth_dependency import get_current_user
+
+
+# Rate Limiter
+from app.middleware.rate_limit import limiter
 
 
 # Schemas
-from app.schemas.stock import StockResponse
 from app.schemas.company import CompanyResponse
 
 
@@ -34,7 +39,6 @@ from app.services.market_service import (
 router = APIRouter()
 
 
-
 # -------------------------
 # STOCK API
 # -------------------------
@@ -44,14 +48,15 @@ router = APIRouter()
     summary="Get Live Stock Information",
     description="Returns real-time stock information and saves it to PostgreSQL."
 )
+@limiter.limit("10/minute")
 def stock(
+    request: Request,
     symbol: str,
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
+    current_user=Depends(get_current_user)
 ):
 
     data = get_stock_price(symbol)
-
 
     save_stock_data(
         db=db,
@@ -61,8 +66,7 @@ def stock(
         exchange=data["exchange"]
     )
 
-
-    return data 
+    return data
 
 
 # -------------------------
@@ -75,7 +79,11 @@ def stock(
     summary="Get Company Information",
     description="Returns company profile information."
 )
-def company(symbol: str):
+@limiter.limit("20/minute")
+def company(
+    request: Request,
+    symbol: str
+):
 
     return get_company_info(symbol)
 
@@ -90,7 +98,11 @@ def company(symbol: str):
     summary="Get Stock History",
     description="Returns last 30 days stock history."
 )
-def stock_history(symbol: str):
+@limiter.limit("20/minute")
+def stock_history(
+    request: Request,
+    symbol: str
+):
 
     return get_stock_history(symbol)
 
@@ -104,7 +116,10 @@ def stock_history(symbol: str):
     "/stocks",
     summary="Get Multiple Stocks"
 )
-def multiple_stocks():
+@limiter.limit("10/minute")
+def multiple_stocks(
+    request: Request
+):
 
     return get_multiple_stocks()
 
@@ -118,13 +133,14 @@ def multiple_stocks():
     "/crypto/{symbol}",
     summary="Get Crypto Price"
 )
+@limiter.limit("10/minute")
 def crypto(
+    request: Request,
     symbol: str,
     db: Session = Depends(get_db)
 ):
 
     data = get_crypto_price(symbol)
-
 
     save_crypto_data(
         db=db,
@@ -132,7 +148,6 @@ def crypto(
         price=data["price"],
         currency=data["currency"]
     )
-
 
     return data
 
@@ -146,6 +161,9 @@ def crypto(
     "/summary",
     summary="Market Summary"
 )
-def market_summary():
+@limiter.limit("30/minute")
+def market_summary(
+    request: Request
+):
 
-    return get_market_summary()
+    return get_market_summary() 

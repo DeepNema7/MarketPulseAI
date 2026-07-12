@@ -11,6 +11,10 @@ from app.security.hashing import verify_password
 from app.security.jwt import create_access_token
 from fastapi.security import OAuth2PasswordRequestForm
 
+from fastapi import Request
+
+from app.middleware.rate_limit import limiter
+
 
 router = APIRouter(
     prefix="/auth",
@@ -95,3 +99,10 @@ def login(
         "access_token": token,
         "token_type": "bearer"
     }
+
+@router.post("/login")
+@limiter.limit("5/minute")
+def login(
+    request: Request,
+):
+    pass

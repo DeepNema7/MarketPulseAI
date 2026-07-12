@@ -81,16 +81,26 @@ def get_stock_price(symbol: str):
 # COMPANY SERVICE
 # --------------------
 
+# --------------------
+# COMPANY SERVICE
+# --------------------
+
 def get_company_info(symbol: str):
 
     symbol = symbol.strip().upper()
-
 
     try:
 
         company = yf.Ticker(symbol)
 
         info = company.info
+
+
+        if not info or not info.get("longName"):
+
+            data_not_found(
+                "Invalid company symbol"
+            )
 
 
         return CompanyResponse(
@@ -120,12 +130,13 @@ def get_company_info(symbol: str):
         )
 
 
-    except Exception:
+    except Exception as e:
+
+        print(e)
 
         data_not_found(
             "Invalid company symbol"
-        )
-
+        ) 
 
 
 # --------------------
