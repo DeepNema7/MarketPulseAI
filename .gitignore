@@ -1,12 +1,14 @@
-# virtual environments
-.venv/
-venv/
-backend/.venv/
-backend/venv/
-
-# secrets
+# environment variables
 .env
 
-# python cache
+# python
 __pycache__/
 *.pyc
+
+# virtual environment
+venv/
+
+# alembic cache
+*.log
+ 
+.vercel

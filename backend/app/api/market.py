@@ -1,29 +1,20 @@
 from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
 
-
-# Security
-from app.security.auth_dependency import get_current_user
-
-
 # Rate Limiter
 from app.middleware.rate_limit import limiter
-
-
-# Schemas
-from app.schemas.company import CompanyResponse
-
 
 # Database
 from app.database.connection import get_db
 
+# Schemas
+from app.schemas.company import CompanyResponse
 
 # CRUD
 from app.crud.market_crud import (
     save_stock_data,
-    save_crypto_data
+    save_crypto_data,
 )
-
 
 # Services
 from app.services.market_service import (
@@ -32,16 +23,31 @@ from app.services.market_service import (
     get_stock_history,
     get_multiple_stocks,
     get_crypto_price,
-    get_market_summary
+    get_market_summary,
 )
-
 
 router = APIRouter()
 
 
-# -------------------------
+# ---------------------------------------------------
+# SEARCH STOCK API
+# ---------------------------------------------------
+
+@router.get(
+    "/search/{symbol}",
+    summary="Search Stock"
+)
+@limiter.limit("20/minute")
+def search_stock(
+    request: Request,
+    symbol: str,
+):
+    return get_stock_price(symbol.upper())
+
+
+# ---------------------------------------------------
 # STOCK API
-# -------------------------
+# ---------------------------------------------------
 
 @router.get(
     "/stock/{symbol}",
@@ -52,11 +58,10 @@ router = APIRouter()
 def stock(
     request: Request,
     symbol: str,
-    db: Session = Depends(get_db),
-    current_user=Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
 
-    data = get_stock_price(symbol)
+    data = get_stock_price(symbol.upper())
 
     save_stock_data(
         db=db,
@@ -69,9 +74,9 @@ def stock(
     return data
 
 
-# -------------------------
+# ---------------------------------------------------
 # COMPANY API
-# -------------------------
+# ---------------------------------------------------
 
 @router.get(
     "/company/{symbol}",
@@ -82,16 +87,15 @@ def stock(
 @limiter.limit("20/minute")
 def company(
     request: Request,
-    symbol: str
+    symbol: str,
 ):
 
-    return get_company_info(symbol)
+    return get_company_info(symbol.upper())
 
 
-
-# -------------------------
+# ---------------------------------------------------
 # HISTORY API
-# -------------------------
+# ---------------------------------------------------
 
 @router.get(
     "/history/{symbol}",
@@ -101,16 +105,15 @@ def company(
 @limiter.limit("20/minute")
 def stock_history(
     request: Request,
-    symbol: str
+    symbol: str,
 ):
 
-    return get_stock_history(symbol)
+    return get_stock_history(symbol.upper())
 
 
-
-# -------------------------
+# ---------------------------------------------------
 # MULTIPLE STOCK API
-# -------------------------
+# ---------------------------------------------------
 
 @router.get(
     "/stocks",
@@ -118,16 +121,15 @@ def stock_history(
 )
 @limiter.limit("10/minute")
 def multiple_stocks(
-    request: Request
+    request: Request,
 ):
 
     return get_multiple_stocks()
 
 
-
-# -------------------------
+# ---------------------------------------------------
 # CRYPTO API
-# -------------------------
+# ---------------------------------------------------
 
 @router.get(
     "/crypto/{symbol}",
@@ -140,7 +142,7 @@ def crypto(
     db: Session = Depends(get_db)
 ):
 
-    data = get_crypto_price(symbol)
+    data = get_crypto_price(symbol.upper())
 
     save_crypto_data(
         db=db,
@@ -152,10 +154,9 @@ def crypto(
     return data
 
 
-
-# -------------------------
+# ---------------------------------------------------
 # MARKET SUMMARY API
-# -------------------------
+# ---------------------------------------------------
 
 @router.get(
     "/summary",
@@ -163,7 +164,7 @@ def crypto(
 )
 @limiter.limit("30/minute")
 def market_summary(
-    request: Request
+    request: Request,
 ):
 
     return get_market_summary() 

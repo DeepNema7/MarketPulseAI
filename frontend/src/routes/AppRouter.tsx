@@ -5,23 +5,22 @@ import Register from "../pages/register";
 import Dashboard from "../pages/dashboard";
 import Portfolio from "../pages/portfolio";
 import Watchlist from "../pages/watchlist";
-import AIInsights from "../pages/AIInsights";
+
 import Home from "../pages/Home";
 
 export default function AppRouter() {
   return (
     <BrowserRouter>
       <Routes>
-  <Route path="/" element={<Home />} />
-  <Route path="/login" element={<Login />} />
-  <Route path="/register" element={<Register />} />
-  <Route path="/dashboard" element={<Dashboard />} />
-  <Route path="/portfolio" element={<Portfolio />} />
-  <Route path="/watchlist" element={<Watchlist />} />
-  <Route path="/ai-insights" element={<AIInsights />} />
-</Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/portfolio" element={<Portfolio />} />
+        <Route path="/watchlist" element={<Watchlist />} />
+        
+      </Routes>
     </BrowserRouter>
   );
-}
-
+} 
 

@@ -4,10 +4,15 @@ from app.schemas.company import CompanyResponse
 
 from app.core.exceptions import data_not_found
 
+
+from app.services.stock_symbols import COMPANY_SYMBOLS 
+
 from app.cache.cache_manager import (
     get_cache,
     set_cache
 )
+
+
 
 
 # --------------------
@@ -16,25 +21,33 @@ from app.cache.cache_manager import (
 
 def get_stock_price(symbol: str):
 
-    symbol = symbol.strip().upper()
+    # Remove extra spaces
+    symbol = symbol.strip()
+
+    # Convert company name to stock symbol if available
+    symbol = COMPANY_SYMBOLS.get(
+        symbol.lower(),
+        symbol.upper()
+    )
+
+    # Company exists but is not publicly traded
+    if symbol is None:
+        data_not_found(
+            "This company is not publicly traded."
+        )
 
     cache_key = f"stock_{symbol}"
 
-
     cached_data = get_cache(cache_key)
 
-
     if cached_data:
-
         return cached_data
-
 
     try:
 
         stock = yf.Ticker(symbol)
 
         info = stock.fast_info
-
 
         data = {
 
@@ -59,22 +72,18 @@ def get_stock_price(symbol: str):
 
         }
 
-
         set_cache(
             cache_key,
             data
         )
 
-
         return data
-
 
     except Exception:
 
         data_not_found(
             "Invalid stock symbol"
-        )
-
+        ) 
 
 
 # --------------------
@@ -87,7 +96,13 @@ def get_stock_price(symbol: str):
 
 def get_company_info(symbol: str):
 
-    symbol = symbol.strip().upper()
+    symbol = symbol.strip()
+
+    # Convert company name to stock symbol
+    symbol = COMPANY_SYMBOLS.get(
+        symbol.lower(),
+        symbol.upper()
+    )
 
     try:
 
@@ -95,13 +110,8 @@ def get_company_info(symbol: str):
 
         info = company.info
 
-
         if not info or not info.get("longName"):
-
-            data_not_found(
-                "Invalid company symbol"
-            )
-
+            data_not_found("Invalid company symbol")
 
         return CompanyResponse(
 
@@ -125,10 +135,17 @@ def get_company_info(symbol: str):
 
             website=info.get(
                 "website"
+            ),
+
+            market_cap=info.get(
+                "marketCap"
+            ),
+
+            employee_count=info.get(
+                "fullTimeEmployees"
             )
 
         )
-
 
     except Exception as e:
 
@@ -136,8 +153,7 @@ def get_company_info(symbol: str):
 
         data_not_found(
             "Invalid company symbol"
-        ) 
-
+        )
 
 # --------------------
 # HISTORY SERVICE
