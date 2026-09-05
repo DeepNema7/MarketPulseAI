@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+import os
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.exceptions import HTTPException
@@ -55,10 +56,12 @@ origins = [
     "http://127.0.0.1:3000",
     "http://localhost:5173",
     "http://127.0.0.1:5173",
-
-    # Add your deployed frontend here later
-    # "https://marketpulseai.netlify.app",
 ]
+
+frontend_url = os.getenv("FRONTEND_URL")
+
+if frontend_url:
+    origins.append(frontend_url)
 
 app.add_middleware(
     CORSMiddleware,
@@ -66,8 +69,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-)
-
+) 
 
 # ---------------------------------------------------
 # Rate Limiter

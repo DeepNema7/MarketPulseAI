@@ -18,7 +18,7 @@ fastapi==0.138.2
 google-ai-generativelanguage==0.6.18
 google-api-core==2.31.0
 google-api-python-client==2.198.0
-google-auth==2.55.1
+google-auth==2.57.1
 google-auth-httplib2==0.4.0
 googleapis-common-protos==1.75.0
 greenlet==3.5.3
