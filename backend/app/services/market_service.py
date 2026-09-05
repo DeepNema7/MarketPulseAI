@@ -93,7 +93,6 @@ def get_stock_price(symbol: str):
 # --------------------
 # COMPANY SERVICE
 # --------------------
-
 def get_company_info(symbol: str):
 
     symbol = symbol.strip()
@@ -105,21 +104,22 @@ def get_company_info(symbol: str):
     )
 
     try:
-
         company = yf.Ticker(symbol)
 
         info = company.info
 
-        if not info or not info.get("longName"):
-            data_not_found("Invalid company symbol")
+        # Yahoo Finance may sometimes return incomplete
+        # company information, especially in production.
+        name = (
+            info.get("longName")
+            or info.get("shortName")
+            or symbol
+        )
 
         return CompanyResponse(
-
             symbol=symbol,
 
-            name=info.get(
-                "longName"
-            ),
+            name=name,
 
             sector=info.get(
                 "sector"
@@ -144,15 +144,22 @@ def get_company_info(symbol: str):
             employee_count=info.get(
                 "fullTimeEmployees"
             )
-
         )
 
     except Exception as e:
+        print("COMPANY API ERROR:", repr(e))
 
-        print(e)
-
-        data_not_found(
-            "Invalid company symbol"
+        # Return basic company information instead of
+        # breaking the dashboard when Yahoo is unavailable.
+        return CompanyResponse(
+            symbol=symbol,
+            name=symbol,
+            sector=None,
+            industry=None,
+            country=None,
+            website=None,
+            market_cap=None,
+            employee_count=None
         )
 
 # --------------------
