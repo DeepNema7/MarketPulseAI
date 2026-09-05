@@ -36,23 +36,25 @@ export default function MarketTable({
   }, []);
 
   async function fetchStocks() {
-    setLoading(true);
+  setLoading(true);
 
-    try {
-      const response = await axios.get(
-        "http://127.0.0.1:8000/market/stocks"
-      );
+  try {
+    const response = await axios.get(
+      `${import.meta.env.VITE_API_URL}/market/stocks`
+    );
 
-      if (Array.isArray(response.data)) {
-        setStocks(response.data);
-      } else {
-        setStocks([]);
-      }
+    if (Array.isArray(response.data)) {
+      setStocks(response.data);
+    } else {
+      setStocks([]);
+    }
 
-      setError("");
-    } catch (err) {
-      console.error(err);
-      setError("Failed to load market data.");
+    setError("");
+  } catch (err) {
+    console.error(err);
+    setError("Failed to load market data.");
+
+
     } finally {
       setLoading(false);
     }

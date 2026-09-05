@@ -26,12 +26,12 @@ export default function AIInsights({ symbol }: Props) {
     try {
       setLoading(true);
 
-      const response = await axios.post<AIResponse>(
-        "http://127.0.0.1:8000/ai/insights",
-        {
-          symbol,
-        }
-      );
+       const response = await axios.post<AIResponse>(
+  `${import.meta.env.VITE_API_URL}/ai/insights`,
+  {
+    symbol,
+  }
+);
 
       setInsight(response.data.summary);
     } catch (error) {

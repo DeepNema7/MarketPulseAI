@@ -1,14 +1,22 @@
-# environment variables
+# Environment variables
 .env
+.env.*
+!.env.example
 
-# python
+# Python
 __pycache__/
 *.pyc
-
-# virtual environment
 venv/
 
-# alembic cache
+# Logs
 *.log
- 
-.vercel
+
+# Vercel
+.vercel/
+
+# Node
+node_modules/
+dist/
+
+# IDE
+.vscode/ 

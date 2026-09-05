@@ -33,9 +33,9 @@ export default function StockChart({ symbol }: Props) {
 
   async function fetchHistory() {
     try {
-      const response = await axios.get(
-        `http://127.0.0.1:8000/market/history/${symbol}`
-      );
+       const response = await axios.get(
+  `${import.meta.env.VITE_API_URL}/market/history/${symbol}`
+);
 
       const chartData: HistoryData[] = response.data.history.map(
         (item: any) => ({

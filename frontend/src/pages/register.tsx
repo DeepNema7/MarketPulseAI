@@ -39,14 +39,14 @@ export default function Register() {
     try {
       setLoading(true);
 
-      await axios.post(
-        "http://localhost:8000/auth/register",
-        {
-          full_name: form.full_name,
-          email: form.email,
-          password: form.password,
-        }
-      );
+       await axios.post(
+  `${import.meta.env.VITE_API_URL}/auth/register`,
+  {
+    full_name: form.full_name,
+    email: form.email,
+    password: form.password,
+  }
+);
 
       alert("Registration Successful!");
 
