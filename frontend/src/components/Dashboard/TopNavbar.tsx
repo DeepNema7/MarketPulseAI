@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import { BarChart3 } from "lucide-react";
 
 export default function TopNavbar() {
   return (
@@ -10,11 +9,15 @@ export default function TopNavbar() {
           to="/"
           className="flex items-center gap-3 hover:opacity-80 transition"
         >
-          <BarChart3 className="h-8 w-8 text-blue-500" />
+          <img
+            src="/marketpulseai-original-logo.png"
+            alt="MarketPulseAI"
+            className="h-9 w-9 object-contain"
+          />
 
           <span className="text-3xl font-bold text-white">
             MarketPulseAI
-          </span>
+          </span> 
         </Link>
 
         <nav className="flex items-center gap-10 text-lg">
