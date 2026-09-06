@@ -86,13 +86,10 @@ def get_stock_price(symbol: str):
         ) 
 
 
-# --------------------
+ # --------------------
 # COMPANY SERVICE
 # --------------------
 
-# --------------------
-# COMPANY SERVICE
-# --------------------
 def get_company_info(symbol: str):
 
     symbol = symbol.strip()
@@ -103,54 +100,85 @@ def get_company_info(symbol: str):
         symbol.upper()
     )
 
+    cache_key = f"company_{symbol}"
+
+    cached_data = get_cache(cache_key)
+
+    if cached_data:
+        return CompanyResponse(**cached_data)
+
     try:
         company = yf.Ticker(symbol)
 
-        info = company.info
+        # Primary source
+        info = company.info or {}
 
-        # Yahoo Finance may sometimes return incomplete
-        # company information, especially in production.
-        name = (
-            info.get("longName")
-            or info.get("shortName")
-            or symbol
-        )
+        # Some yfinance versions/environments work better
+        # with get_info() when info is incomplete.
+        if not info.get("longName") and not info.get("shortName"):
+            try:
+                info = company.get_info() or {}
+            except Exception:
+                pass
 
-        return CompanyResponse(
-            symbol=symbol,
+        # Try fast_info for market cap if normal info doesn't have it
+        market_cap = info.get("marketCap")
 
-            name=name,
+        if market_cap is None:
+            try:
+                fast_info = company.fast_info
+                market_cap = fast_info.get("marketCap")
+            except Exception:
+                pass
 
-            sector=info.get(
-                "sector"
+        data = {
+            "symbol": symbol,
+
+            "name": (
+                info.get("longName")
+                or info.get("shortName")
+                or symbol
             ),
 
-            industry=info.get(
-                "industry"
-            ),
+            "sector": info.get("sector"),
 
-            country=info.get(
-                "country"
-            ),
+            "industry": info.get("industry"),
 
-            website=info.get(
-                "website"
-            ),
+            "country": info.get("country"),
 
-            market_cap=info.get(
-                "marketCap"
-            ),
+            "website": info.get("website"),
 
-            employee_count=info.get(
+            "market_cap": market_cap,
+
+            "employee_count": info.get(
                 "fullTimeEmployees"
             )
-        )
+        }
+
+        # Save only if we actually received useful company data
+        if (
+            data["name"] != symbol
+            or data["sector"]
+            or data["industry"]
+            or data["country"]
+            or data["website"]
+            or data["market_cap"]
+            or data["employee_count"]
+        ):
+            set_cache(
+                cache_key,
+                data
+            )
+
+        return CompanyResponse(**data)
 
     except Exception as e:
-        print("COMPANY API ERROR:", repr(e))
 
-        # Return basic company information instead of
-        # breaking the dashboard when Yahoo is unavailable.
+        print(
+            "COMPANY API ERROR:",
+            repr(e)
+        )
+
         return CompanyResponse(
             symbol=symbol,
             name=symbol,
@@ -161,7 +189,6 @@ def get_company_info(symbol: str):
             market_cap=None,
             employee_count=None
         )
-
 # --------------------
 # HISTORY SERVICE
 # --------------------
